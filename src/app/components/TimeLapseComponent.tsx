@@ -7,35 +7,35 @@ interface ImageData {
     url: string;
 }
 
-// TimeLapseComponent の型を定義
-interface TimeLapseComponentProps {
-    date: string;
+
+interface TimeLapseProps {
+    date?: string; // 日付をオプショナルに
 }
 
-const TimeLapseComponent: React.FC<TimeLapseComponentProps> = ({ date }) => {
+// 日本時間の日付を取得する関数
+const getJSTDate = () => {
+    const offset = 9 * 60; // JST は UTC+9
+    const jstDate = new Date(new Date().getTime() + offset * 60 * 1000);
+    return jstDate.toISOString().split('T')[0];
+};
+
+
+
+const TimeLapseComponent: React.FC<TimeLapseProps> = ({ date }) => {
     const [images, setImages] = useState<ImageData[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [intervalTime, setIntervalTime] = useState(100); // デフォルトは0.1秒
     const [playing, setPlaying] = useState(true);
-    const [selectedDate, setSelectedDate] = useState<string>(date); // デフォルトは props の date
-    const [loading, setLoading] = useState<boolean>(true); // ローディング状態
-    const [error, setError] = useState<string | null>(null); // エラー状態
+    const [selectedDate, setSelectedDate] = useState(date || getJSTDate());
+    console.log("selectedDate:::",selectedDate);
 
     useEffect(() => {
         async function fetchImages() {
-            setLoading(true);
-            setError(null);
-            try {
-                const res = await fetch(`/api/getImages?date=${selectedDate}`);
-                if (!res.ok) throw new Error('データの取得に失敗しました');
-                const data = await res.json();
-                setImages(data);
-                setCurrentIndex(0); // データ取得後にインデックスをリセット
-            } catch (err) {
-                setError((err as Error).message);
-            } finally {
-                setLoading(false);
-            }
+            const res = await fetch(`/api/getImages?date=${selectedDate}`);
+            const data = await res.json();
+            setImages(data);
+
+            
         }
 
         fetchImages();
@@ -87,21 +87,12 @@ const TimeLapseComponent: React.FC<TimeLapseComponentProps> = ({ date }) => {
         setSelectedDate(event.target.value);
     };
 
-    if (loading) {
+
+    if (images.length === 0) {
         return <p>画像を読み込み中...</p>;
     }
 
-    if (error) {
-        return <p>エラーが発生しました: {error}</p>;
-    }
-
-    if (images.length === 0) {
-        return <p>画像が見つかりません</p>;
-    }
-
-    // currentIndex が images 配列の範囲内であることを確認
-    const image = images[currentIndex] || { name: 'N/A', url: '' };
-    const { name, url } = image;
+    const { name, url } = images[currentIndex];
 
     return (
         <div className="p-4">
