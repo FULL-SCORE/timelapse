@@ -1,6 +1,5 @@
-'use client'
+'use client';
 
-import { Slider, SliderThumb, SliderTrack, SliderRange } from '@radix-ui/react-slider';
 import React, { useEffect, useState } from 'react';
 
 interface ImageData {
@@ -15,9 +14,8 @@ interface TimeLapseProps {
 const TimeLapse: React.FC<TimeLapseProps> = ({ date }) => {
     const [images, setImages] = useState<ImageData[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [intervalTime, setIntervalTime] = useState(1000); // デフォルトは1秒
+    const [intervalTime, setIntervalTime] = useState(100); // デフォルトは0.1秒
     const [playing, setPlaying] = useState(true);
-    const [speed, setSpeed] = useState<number>(1000); // スピード設定の初期値（1秒）
 
     useEffect(() => {
         async function fetchImages() {
@@ -44,14 +42,31 @@ const TimeLapse: React.FC<TimeLapseProps> = ({ date }) => {
     }, [images, playing, intervalTime]);
 
     const handleSpeedChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const newSpeed = parseInt(event.target.value, 10);
-        setSpeed(newSpeed);
-        setIntervalTime(newSpeed);
+        const value = event.target.value;
+        switch (value) {
+            case '0.1':
+                setIntervalTime(100); // 0.1秒
+                break;
+            case '0.5':
+                setIntervalTime(500); // 0.5秒
+                break;
+            case '1':
+                setIntervalTime(1000); // 1秒
+                break;
+            default:
+                setIntervalTime(100); // デフォルト値
+                break;
+        }
     };
 
-    const handleIndexChange = (value: number[]) => {
-        setCurrentIndex(value[0]);
-        setPlaying(false); // スライダーでバーを変更したときは一時停止
+    const handleIndexChange = (amount: number) => {
+        setCurrentIndex((prevIndex) => {
+            const newIndex = prevIndex + amount;
+            if (newIndex >= images.length) return 0;
+            if (newIndex < 0) return images.length - 1;
+            return newIndex;
+        });
+        setPlaying(false); // ボタンでバーを変更したときは一時停止
     };
 
     if (images.length === 0) {
@@ -69,36 +84,58 @@ const TimeLapse: React.FC<TimeLapseProps> = ({ date }) => {
                 <label htmlFor="speed" className="block text-sm font-medium mb-1">Speed: </label>
                 <select
                     id="speed"
-                    value={speed}
                     onChange={handleSpeedChange}
-                    className="block w-full mb-2 p-2 border border-gray-300 rounded"
+                    className="py-2 px-4 border border-gray-300 rounded"
                 >
-                    <option value={100}>0.1秒</option>
-                    <option value={300}>0.3秒</option>
-                    <option value={400}>0.4秒</option>
-                    <option value={500}>0.5秒</option>
-                    <option value={1000}>1秒</option>
-                    <option value={2000}>2秒</option>
-                    {/* 他のオプションを追加することも可能 */}
+                    <option value="0.1">0.1秒 (標準)</option>
+                    <option value="0.5">0.5秒</option>
+                    <option value="1">1秒</option>
                 </select>
             </div>
 
             <div className="mb-4">
-                <label htmlFor="progress" className="block text-sm font-medium mb-1">Progress: </label>
-                <Slider
-                    id="progress"
-                    min={0}
-                    max={images.length - 1}
-                    step={1}
-                    value={[currentIndex]}
-                    onValueChange={handleIndexChange}
-                    className="relative w-full h-6"
+                <button
+                    onClick={() => handleIndexChange(-1)}
+                    className="py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600 mr-2"
                 >
-                    <SliderTrack className="absolute w-full h-1 bg-gray-400 rounded-full" />
-                    <SliderRange className="absolute h-1 bg-black rounded-full" />
-                    <SliderThumb className="w-5 h-5 bg-black rounded-full cursor-pointer" />
-                </Slider>
-                <span className="text-sm ml-2">{currentIndex + 1} / {images.length}</span>
+                    Previous
+                </button>
+                <button
+                    onClick={() => handleIndexChange(-10)}
+                    className="py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600 mr-2"
+                >
+                    -10
+                </button>
+                <button
+                    onClick={() => handleIndexChange(-100)}
+                    className="py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600 mr-2"
+                >
+                    -100
+                </button>
+                <button
+                    onClick={() => handleIndexChange(10)}
+                    className="py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600 mr-2"
+                >
+                    +10
+                </button>
+                <button
+                    onClick={() => handleIndexChange(100)}
+                    className="py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600 mr-2"
+                >
+                    +100
+                </button>
+                <button
+                    onClick={() => handleIndexChange(1)}
+                    className="py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-600"
+                >
+                    Next
+                </button>
+            </div>
+
+            <div className="mb-4">
+                <p className="text-sm">
+                    {currentIndex + 1} / {images.length}
+                </p>
             </div>
 
             <button
