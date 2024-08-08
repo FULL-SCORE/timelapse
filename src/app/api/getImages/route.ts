@@ -19,7 +19,7 @@ async function getImagesFromFTP(date: string) {
         const imageList = await client.list();
         const imageData = imageList.map(file => ({
             name: file.name,
-            url: `${process.env.FTP_BASE_URL || 'http://example.com/cam'}${dirPath}${file.name}`
+            url: `${process.env.FTP_BASE_URL || 'http://example.com/'}${dirPath}${file.name}`
         }));
 
         return imageData;

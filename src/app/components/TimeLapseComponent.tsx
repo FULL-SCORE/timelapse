@@ -7,25 +7,39 @@ interface ImageData {
     url: string;
 }
 
-interface TimeLapseProps {
+// TimeLapseComponent の型を定義
+interface TimeLapseComponentProps {
     date: string;
 }
 
-const TimeLapse: React.FC<TimeLapseProps> = ({ date }) => {
+const TimeLapseComponent: React.FC<TimeLapseComponentProps> = ({ date }) => {
     const [images, setImages] = useState<ImageData[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [intervalTime, setIntervalTime] = useState(100); // デフォルトは0.1秒
     const [playing, setPlaying] = useState(true);
+    const [selectedDate, setSelectedDate] = useState<string>(date); // デフォルトは props の date
+    const [loading, setLoading] = useState<boolean>(true); // ローディング状態
+    const [error, setError] = useState<string | null>(null); // エラー状態
 
     useEffect(() => {
         async function fetchImages() {
-            const res = await fetch(`/api/getImages?date=${date}`);
-            const data = await res.json();
-            setImages(data);
+            setLoading(true);
+            setError(null);
+            try {
+                const res = await fetch(`/api/getImages?date=${selectedDate}`);
+                if (!res.ok) throw new Error('データの取得に失敗しました');
+                const data = await res.json();
+                setImages(data);
+                setCurrentIndex(0); // データ取得後にインデックスをリセット
+            } catch (err) {
+                setError((err as Error).message);
+            } finally {
+                setLoading(false);
+            }
         }
 
         fetchImages();
-    }, [date]);
+    }, [selectedDate]);
 
     useEffect(() => {
         if (images.length === 0) return;
@@ -69,16 +83,41 @@ const TimeLapse: React.FC<TimeLapseProps> = ({ date }) => {
         setPlaying(false); // ボタンでバーを変更したときは一時停止
     };
 
-    if (images.length === 0) {
+    const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedDate(event.target.value);
+    };
+
+    if (loading) {
         return <p>画像を読み込み中...</p>;
     }
 
-    const { name, url } = images[currentIndex];
+    if (error) {
+        return <p>エラーが発生しました: {error}</p>;
+    }
+
+    if (images.length === 0) {
+        return <p>画像が見つかりません</p>;
+    }
+
+    // currentIndex が images 配列の範囲内であることを確認
+    const image = images[currentIndex] || { name: 'N/A', url: '' };
+    const { name, url } = image;
 
     return (
         <div className="p-4">
             <p className="text-lg font-semibold mb-2">{name}</p>
             <img src={url} alt={`Image ${name}`} className="w-full max-w-full mb-4" />
+
+            <div className="mb-4">
+                <label htmlFor="date" className="block text-sm font-medium mb-1">Select Date: </label>
+                <input
+                    type="date"
+                    id="date"
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                    className="py-2 px-4 border border-gray-300 rounded"
+                />
+            </div>
 
             <div className="mb-4">
                 <label htmlFor="speed" className="block text-sm font-medium mb-1">Speed: </label>
@@ -148,4 +187,4 @@ const TimeLapse: React.FC<TimeLapseProps> = ({ date }) => {
     );
 };
 
-export default TimeLapse;
+export default TimeLapseComponent;
