@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Client } from 'basic-ftp'; // 正しいインポート
 import { format } from "date-fns";
 
-export const runtime = 'edge';
+
 
 
 
@@ -64,3 +64,5 @@ export async function GET(req: NextRequest) {
         client.close();
     }
 }
+
+export const revalidate = 0;
