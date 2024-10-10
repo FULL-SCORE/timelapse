@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { Client } from 'basic-ftp'; // 正しいインポート
-import { format } from "date-fns";
-
-
-
+import { format ,toZonedTime} from "date-fns-tz";
 
 
 export async function GET(req: NextRequest) {
@@ -12,9 +9,10 @@ export async function GET(req: NextRequest) {
     const client = new Client();
     client.ftp.verbose = true;
 
-    const today = format(new Date(), "yyyy-MM-dd");
+    const timeZone = 'Asia/Tokyo';
+    const now = new Date();
+    const today = format(toZonedTime(now, timeZone), "yyyy-MM-dd");
     console.log(today);
-
 
     try {
         // FTPサーバーにアクセス
