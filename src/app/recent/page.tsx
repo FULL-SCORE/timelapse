@@ -17,7 +17,8 @@ export default function Home() {
         // API から最新の画像 URL とファイルリストを取得
         const fetchImageUrl = async () => {
             try {
-                const response = await fetch("/api/getnewimage", { method: "GET" });
+                const response = await fetch(`/api/getnewimage?_=${new Date().getTime()}`, { method: "GET" });
+
 
                 const data: ImageResponse = await response.json();
                 if (data.imageUrl) {
