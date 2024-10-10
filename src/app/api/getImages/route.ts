@@ -4,11 +4,12 @@ import { Client } from 'basic-ftp'; // 正しいインポート
 async function getImagesFromFTP(date: string) {
     const client = new Client(); // `Client` を正しく使用
     client.ftp.verbose = true;
+    console.log("getImagesFromFTP");
 
     try {
         await client.access({
             host: process.env.FTP_HOST || "ftp.example.com",
-            user: process.env.FTP_USER || "username",
+            user: process.env.FTP_USER || "user",
             password: process.env.FTP_PASSWORD || "password",
             secure: false
         });
@@ -17,6 +18,7 @@ async function getImagesFromFTP(date: string) {
         await client.cd(dirPath);
 
         const imageList = await client.list();
+        // console.log(imageList);
         const imageData = imageList.map(file => ({
             name: file.name,
             url: `${process.env.FTP_BASE_URL || 'http://example.com/'}${dirPath}${file.name}`
