@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { Client } from 'basic-ftp'; // 正しいインポート
 import { format } from "date-fns";
 
+export const runtime = 'edge';
+
+
+
 export async function GET(req: NextRequest) {
     // console.log("getnewimage");
     const client = new Client();
@@ -44,9 +48,10 @@ export async function GET(req: NextRequest) {
             const filename = latestFile.name;
             return NextResponse.json({ imageUrl, filename, fileList }, { status: 200,
                 headers: {
-                    'Cache-Control': 'public, max-age=10, stale-while-revalidate=20',
-                    'Content-Type': 'application/json',
-                },
+                    'Cache-Control': 'no-store',
+                    'CDN-Cache-Control': 'no-store',
+                    'Vercel-CDN-Cache-Control': 'no-store'
+                  }
             });
         } else {
             return NextResponse.json({ error: "画像が見つかりませんでした" }, { status: 404 });
