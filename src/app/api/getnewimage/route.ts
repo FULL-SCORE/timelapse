@@ -44,10 +44,9 @@ export async function GET(req: NextRequest) {
             const filename = latestFile.name;
             return NextResponse.json({ imageUrl, filename, fileList }, { status: 200,
                 headers: {
-                    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                }
+                    'Cache-Control': 'public, max-age=10, stale-while-revalidate=20',
+                    'Content-Type': 'application/json',
+                },
             });
         } else {
             return NextResponse.json({ error: "画像が見つかりませんでした" }, { status: 404 });
