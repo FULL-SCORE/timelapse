@@ -5,6 +5,7 @@ interface ImageResponse {
     imageUrl: string;
     filename: string;
     fileList: { name: string }[];
+    today: string;
 }
 
 export default function Home() {
@@ -12,7 +13,8 @@ export default function Home() {
     const [filename, setFilename] = useState<string | null>(null);
     const [fileList, setFileList] = useState<{ name: string }[]>([]);
     const [error, setError] = useState<string | null>(null);
-
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [today, setToday] = useState<string | null>(null);
     useEffect(() => {
         // API から最新の画像 URL とファイルリストを取得
         const fetchImageUrl = async () => {
@@ -24,7 +26,7 @@ export default function Home() {
                 if (data.imageUrl) {
                     setImageUrl(data.imageUrl);
                     setFilename(data.filename);
-                    
+                    setToday(data.today);
                     // ファイルリストを新しい順にソートし、逆順にする
                     const sortedFileList = data.fileList.sort((a, b) => {
                         const aTimeString = a.name.split('_')[0] + 'T' + a.name.split('_')[1].replace(/-/g, ':');
@@ -36,12 +38,15 @@ export default function Home() {
                     }).reverse().slice(0, 20); // 逆順にする
 
                     setFileList(sortedFileList);
+                    setIsLoading(false);
                 } else {
                     setError("画像が見つかりませんでした");
+                    setIsLoading(false);
                 }
             } catch (err) {
                 setError("画像を取得できませんでした");
                 console.error(err);
+                setIsLoading(false);
             }
         };
 
@@ -53,7 +58,10 @@ export default function Home() {
         <div className="container">
             <h1>最新の画像</h1>
             <p>ファイル名: {filename}</p>
-            {error ? (
+            <p>日付: {today}</p>
+            {isLoading ? (
+                <p>読み込み中...</p>
+            ) : error ? (
                 <p>{error}</p>
             ) : imageUrl ? (
                 <img src={imageUrl} alt="最新の画像" />
