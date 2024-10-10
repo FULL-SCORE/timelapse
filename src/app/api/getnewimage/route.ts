@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
         if (latestFile) {
             // FTP サーバーの画像 URL を生成
-            const imageUrl = `${process.env.FTP_BASE_URL || 'http://example.com/'}cam/${today}/${latestFile.name}`;
+            const imageUrl = `${process.env.FTP_BASE_URL || 'http://example.com/'}cam/${today}/${latestFile.name}?_=${new Date().getTime()}`;
             const filename = latestFile.name;
             return NextResponse.json({ imageUrl, filename, fileList }, { status: 200,
                 headers: {
