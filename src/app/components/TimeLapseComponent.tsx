@@ -7,7 +7,6 @@ interface ImageData {
     url: string;
 }
 
-
 interface TimeLapseProps {
     date?: string; // 日付をオプショナルに
 }
@@ -19,23 +18,25 @@ const getJSTDate = () => {
     return jstDate.toISOString().split('T')[0];
 };
 
-
-
 const TimeLapseComponent: React.FC<TimeLapseProps> = ({ date }) => {
     const [images, setImages] = useState<ImageData[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [intervalTime, setIntervalTime] = useState(100); // デフォルトは0.1秒
     const [playing, setPlaying] = useState(true);
     const [selectedDate, setSelectedDate] = useState(date || getJSTDate());
-    console.log("selectedDate:::",selectedDate);
+    console.log("selectedDate:::", selectedDate);
 
     useEffect(() => {
         async function fetchImages() {
             const res = await fetch(`/api/getImages?date=${selectedDate}`);
             const data = await res.json();
-            setImages(data);
 
-            
+            // 撮影日時順にソート
+            data.sort((a: ImageData, b: ImageData) => {
+                return new Date(a.name).getTime() - new Date(b.name).getTime();
+            });
+
+            setImages(data);
         }
 
         fetchImages();
@@ -60,6 +61,9 @@ const TimeLapseComponent: React.FC<TimeLapseProps> = ({ date }) => {
         switch (value) {
             case '0.1':
                 setIntervalTime(100); // 0.1秒
+                break;
+            case '0.3':
+                setIntervalTime(300); // 0.3秒
                 break;
             case '0.5':
                 setIntervalTime(500); // 0.5秒
@@ -86,7 +90,6 @@ const TimeLapseComponent: React.FC<TimeLapseProps> = ({ date }) => {
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedDate(event.target.value);
     };
-
 
     if (images.length === 0) {
         return <p>画像を読み込み中...</p>;
@@ -118,6 +121,7 @@ const TimeLapseComponent: React.FC<TimeLapseProps> = ({ date }) => {
                     className="py-2 px-4 border border-gray-300 rounded"
                 >
                     <option value="0.1">0.1秒 (標準)</option>
+                    <option value="0.3">0.3秒</option>
                     <option value="0.5">0.5秒</option>
                     <option value="1">1秒</option>
                 </select>
