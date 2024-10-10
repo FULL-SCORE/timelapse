@@ -111,7 +111,7 @@ export default function Home() {
           </p>
         </a>
           <a href="/lapse" className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"><h2 className="text-2xl font-semibold">lapse</h2></a>
-          <a href="/recent" className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"><h2 className="text-2xl font-semibold">recent</h2></a>
+          <a href="/recent" className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"><h2 className="text-2xl font-semibold">recentN</h2></a>
       </div>
     </main>
   );
