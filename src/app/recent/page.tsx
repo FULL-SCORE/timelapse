@@ -33,7 +33,7 @@ export default function Home() {
                         const aTime = new Date(aTimeString).getTime();
                         const bTime = new Date(bTimeString).getTime();
                         return bTime - aTime;  // bTimeが新しいものが先
-                    }).reverse(); // 逆順にする
+                    }).reverse().slice(0, 20); // 逆順にする
 
                     setFileList(sortedFileList);
                 } else {

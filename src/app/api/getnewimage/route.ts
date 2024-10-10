@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     client.ftp.verbose = true;
 
     const today = format(new Date(), "yyyy-MM-dd");
-    // console.log(today);
+    console.log(today);
 
 
     try {
