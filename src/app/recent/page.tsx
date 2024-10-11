@@ -35,7 +35,8 @@ export default function Home() {
                         const aTime = new Date(aTimeString).getTime();
                         const bTime = new Date(bTimeString).getTime();
                         return bTime - aTime;  // bTimeが新しいものが先
-                    }).reverse().slice(0, 20); // 逆順にする
+                    }).reverse()
+                    //.slice(0, 20); // 逆順にする
 
                     setFileList(sortedFileList);
                     setIsLoading(false);
@@ -55,33 +56,39 @@ export default function Home() {
 
     return (
         <>
-        <div className="container">
-            <h1>最新の画像</h1>
-            <p>ファイル名: {filename}</p>
-            <p>日付: {today}</p>
-            {isLoading ? (
-                <p>読み込み中...</p>
-            ) : error ? (
-                <p>{error}</p>
-            ) : imageUrl ? (
-                <img src={imageUrl} alt="最新の画像" />
-            ) : (
-                <p>画像を読み込んでいます...</p>
-            )}
-        </div>
-        
-        <div>
-            <h1>ファイル一覧</h1>
-            <ul>
-                {fileList.length > 0 ? (
-                    fileList.map((file) => (
-                        <li key={file.name}>{file.name}</li>
-                    ))
+            <div className="container">
+                <h1>最新の画像</h1>
+                <p>ファイル名: {filename}</p>
+                <p>日付: {today}</p>
+                {isLoading ? (
+                    <p>読み込み中...</p>
+                ) : error ? (
+                    <p>{error}</p>
+                ) : imageUrl ? (
+                    <img src={imageUrl} alt="最新の画像" />
                 ) : (
-                    <p>ファイルリストを読み込んでいます...</p>
+                    <p>画像を読み込んでいます...</p>
                 )}
-            </ul>
-        </div>
+            </div>
+
+            <div>
+                <h1>ファイル一覧</h1>
+                <ul>
+                {fileList.length > 0 ? (
+                        fileList
+                            .filter((_, index) => index % 60 === 0) // 30の倍数のインデックスのみ表示
+                            .map((file) => (
+                                <li key={file.name}>
+                                <a href={`https://fs-100.mods.jp/cam/${today}/${file.name}`} target="_blank" rel="noopener noreferrer">
+                                    {file.name}
+                                </a>
+                            </li>
+                        ))
+                    ) : (
+                        <p>ファイルリストを読み込んでいます...</p>
+                    )}
+                </ul>
+            </div>
         </>
     );
 }
